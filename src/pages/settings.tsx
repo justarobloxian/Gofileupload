@@ -1,86 +1,32 @@
-import { React } from "@vendetta/metro/common";
-import { storage } from "@vendetta/plugin";
-import { findByProps } from "@vendetta/metro";
+const { storage } = vendetta.plugin;
+const { Forms } = vendetta.metro.common;
+const { FormRow, FormSwitch, FormSection } = Forms;
 
-const { ScrollView } = findByProps("ScrollView");
-const {
-  TableRowGroup,
-  TableSwitchRow,
-  Stack,
-} = findByProps("TableSwitchRow", "TableRowGroup", "Stack");
-
-const { TextInput } = findByProps("TextInput");
-
-const get = (k: string, fallback: any = "") => storage[k] ?? fallback;
-const set = (k: string, v: any) => (storage[k] = v);
-
-export default function Settings() {
-  const [_, forceUpdate] = React.useReducer(x => ~x, 0);
-  const update = () => forceUpdate();
+export default () => {
+  // We ensure these exist so the toggles aren't "undefined"
+  storage.alwaysUpload ??= false;
+  storage.copyToClipboard ??= true;
+  storage.insertIntoMessage ??= false;
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Stack spacing={8} style={{ padding: 10 }}>
-
-        <TableRowGroup title="Upload Settings">
-          <TableSwitchRow
-            label="Always upload to GoFile"
-            subLabel="Ignore the 10MB limit to trigger upload"
-            value={!!get("alwaysUpload")}
-            onValueChange={(v) => {
-              set("alwaysUpload", v);
-              update();
-            }}
-          />
-          <TableSwitchRow
-            label="Copy link to clipboard"
-            subLabel="Disable to automatically send link to chat"
-            value={!!get("copy")}
-            onValueChange={(v) => {
-              set("copy", v);
-              update();
-            }}
-          />
-          <TableSwitchRow
-            label="Insert into the message"
-            subLabel="Directly inserts the link into your next message"
-            value={!!get("insert")}
-            onValueChange={(v) => {
-              set("insert", v);
-              update();
-            }}
-          />
-        </TableRowGroup>
-
-        <TableRowGroup title="GoFile API Token">
-          <Stack spacing={4}>
-            <TextInput
-              placeholder="Optional: Enter GoFile token for account uploads"
-              value={get("gofileToken")}
-              onChange={(v) => {
-                set("gofileToken", v);
-                update();
-              }}
-              isClearable
-            />
-          </Stack>
-        </TableRowGroup>
-
-        <TableRowGroup title="Custom Command Name">
-          <Stack spacing={4}>
-            <TextInput
-              placeholder="Default: /gofile"
-              value={get("commandName")}
-              onChange={(v) => {
-                set("commandName", v);
-                update();
-              }}
-              isClearable
-            />
-          </Stack>
-        </TableRowGroup>
-
-      </Stack>
-    </ScrollView>
+    <FormSection title="Gofile Upload Settings">
+      <FormSwitch
+        label="Always upload to Gofile"
+        subLabel="Ignore the 10MB limit and upload everything to Gofile"
+        value={storage.alwaysUpload}
+        onValueChange={(v: boolean) => (storage.alwaysUpload = v)}
+      />
+      <FormSwitch
+        label="Copy link to clipboard"
+        value={storage.copyToClipboard}
+        onValueChange={(v: boolean) => (storage.copyToClipboard = v)}
+      />
+      <FormSwitch
+        label="Insert into message"
+        subLabel="Automatically put the link at the end of your message"
+        value={storage.insertIntoMessage}
+        onValueChange={(v: boolean) => (storage.insertIntoMessage = v)}
+      />
+    </FormSection>
   );
-}
+};
