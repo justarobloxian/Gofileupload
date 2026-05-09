@@ -18,9 +18,9 @@ export function warmUpUploader() {
     const file = createWarmupFile();
     try {
       const gofileLink = await uploadToGoFile(file);
-      console.log(`[WarmUp] GoFile upload complete: ${gofileLink}`);
+      console.log(`[WarmUp] GoFile complete: ${gofileLink}`);
     } catch (err) {
-      console.warn("[WarmUp] GoFile upload failed:", err);
+      console.warn("[WarmUp] GoFile failed:", err);
     }
   }, 5000);
 }
