@@ -8,25 +8,33 @@ import {
   patchMessageSender,
 } from "./handler";
 
-let unpatches: (() => void)[] = [];
+let unpatches: any[] = [];
 
 export default {
   onLoad() {
-    ensureDefaultSettings();
-    loadCommand();
+    try {
+      ensureDefaultSettings();
+      loadCommand();
 
-    unpatches.push(patchUploader());
-    unpatches.push(patchMessageSender());
+      const uploaderPatch = patchUploader();
+      if (uploaderPatch) unpatches.push(uploaderPatch);
 
-    warmUpUploader();
-    console.log("[catbox.moe] Plugin loaded.");
-    this.settings = settings;
+      const senderPatch = patchMessageSender();
+      if (senderPatch) unpatches.push(senderPatch);
+
+      warmUpUploader();
+      console.log("[Gofile] Plugin loaded successfully.");
+    } catch (e) {
+      console.error("[Gofile] Failed to load:", e);
+    }
   },
 
   onUnload() {
     unloadCommand();
-    unpatches.forEach((u) => u());
-    console.log("[catbox.moe] Plugin unloaded.");
+    for (const unpatch of unpatches) {
+      if (typeof unpatch === "function") unpatch();
+    }
+    console.log("[Gofile] Plugin unloaded.");
   },
 
   settings,
