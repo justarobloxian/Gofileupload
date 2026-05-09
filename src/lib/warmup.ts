@@ -1,4 +1,4 @@
-import { uploadToGoFile } from "../api/gofile";
+import { uploadToGoFile } from "../handler";
 import { getRandomString } from "./utils";
 
 export function createWarmupFile() {
@@ -16,12 +16,11 @@ export function createWarmupFile() {
 export function warmUpUploader() {
   setTimeout(async () => {
     const file = createWarmupFile();
-
     try {
       const gofileLink = await uploadToGoFile(file);
       console.log(`[WarmUp] GoFile upload complete: ${gofileLink}`);
     } catch (err) {
       console.warn("[WarmUp] GoFile upload failed:", err);
     }
-  }, 0);
+  }, 5000);
 }
