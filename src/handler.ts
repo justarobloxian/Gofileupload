@@ -3,6 +3,7 @@ import { ReactNative } from "@vendetta/metro/common";
 import { showToast } from "@vendetta/ui/toasts";
 import { storage } from "@vendetta/plugin";
 import { findByProps } from "@vendetta/metro";
+import { uploadToGoFile } from "./api/gofile";
 
 const CloudUploadModule = findByProps("CloudUpload");
 const MessageSender = findByProps("sendMessage");
