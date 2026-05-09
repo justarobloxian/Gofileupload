@@ -13,7 +13,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Build Plugin
-        run: npx rollup -c # This is the standard Vendetta build command
+        run: npm run build
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
