@@ -11,7 +11,7 @@ export default {
     esbuild({
       minify: true,
       target: 'es2020',
-      jsx: 'transform',
+      jsx: 'transform'
     })
   ]
 };
