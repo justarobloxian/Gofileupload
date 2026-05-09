@@ -14,13 +14,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Plugin
-        run: npx vendetta-cli build src dist
+      - name: Build
+        run: |
+          npm install
+          npm run build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
