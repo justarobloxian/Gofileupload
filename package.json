@@ -2,7 +2,10 @@
   "name": "gofile-upload",
   "version": "1.0.0",
   "main": "src/index.tsx",
+  "scripts": {
+    "build": "npx @vendetta/cli build src dist"
+  },
   "devDependencies": {
-    "vendetta-cli": "latest"
+    "@vendetta/cli": "latest"
   }
 }
