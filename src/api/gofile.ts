@@ -1,27 +1,33 @@
 import { storage } from "@vendetta/plugin";
 
-export async function uploadToGoFile(file: any): Promise<string | null> {
+export async function uploadToGoFile(media: any): Promise<string | null> {
   try {
+    const fileUri = media?.item?.originalUri || media?.uri || media?.fileUri || media?.path || media?.sourceURL;
+    if (!fileUri) return null;
+
+    const filename = media.filename ?? "upload";
+    const token = storage.gofileToken?.trim();
+
     const serverRes = await fetch("https://api.gofile.io/getServer");
     const serverData = await serverRes.json();
     if (serverData.status !== "ok") return null;
-
+    
     const formData = new FormData();
     formData.append("file", {
-      uri: file.uri,
-      type: file.mimeType || "application/octet-stream",
-      name: file.filename || "upload"
+      uri: fileUri,
+      name: filename,
+      type: media.mimeType ?? "application/octet-stream",
     } as any);
 
-    if (storage.token) formData.append("token", storage.token);
+    if (token) formData.append("token", token);
 
-    const uploadRes = await fetch(`https://${serverData.data.server}.gofile.io/uploadFile`, {
+    const response = await fetch(`https://${serverData.data.server}.gofile.io/uploadFile`, {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
-    const uploadData = await uploadRes.json();
-    return uploadData.status === "ok" ? uploadData.data.downloadPage : null;
+    const result = await response.json();
+    return result.status === "ok" ? result.data.downloadPage : null;
   } catch {
     return null;
   }
