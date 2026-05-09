@@ -79,7 +79,7 @@ export function patchUploader() {
     if (!shouldUpload) return originalUpload.apply(this, args);
 
     this.preCompressionSize = 1337; 
-    showToast(`📤 Uploading to GoFile...`);
+    showToast(`Uploading to GoFile...`);
 
     const channelId = this?.channelId ?? ChannelStore?.getChannelId?.();
 
@@ -90,17 +90,9 @@ export function patchUploader() {
 
       if (link) {
         const content = `[${file?.filename ?? "file"}](${link})`;
-        if (storage.insert) {
-          storeLink = content;
-          showToast("Link queued.");
-        }
-        if (storage.copy) {
-          ReactNative.Clipboard.setString(content);
-          showToast("Copied to clipboard!");
-        } 
-        if (!storage.insert && channelId) {
-          await MessageSender.sendMessage(channelId, { content });
-        }
+        if (storage.insert) storeLink = content;
+        if (storage.copy) ReactNative.Clipboard.setString(content);
+        if (!storage.insert && channelId) await MessageSender.sendMessage(channelId, { content });
       } else {
         showToast("Upload failed.");
       }
@@ -112,5 +104,4 @@ export function patchUploader() {
   };
 
   return () => { CloudUpload.prototype.reactNativeCompressAndExtractData = originalUpload; };
-}
-  
+      }
