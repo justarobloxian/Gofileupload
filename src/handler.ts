@@ -3,10 +3,37 @@ import { ReactNative } from "@vendetta/metro/common";
 import { showToast } from "@vendetta/ui/toasts";
 import { storage } from "@vendetta/plugin";
 import { findByProps } from "@vendetta/metro";
-import { uploadToGoFile } from "./api/gofile";
 
 const CloudUploadModule = findByProps("CloudUpload");
 const MessageSender = findByProps("sendMessage");
+
+// API Logic moved inside to prevent "Red X" import errors
+async function uploadToGoFile(file: any): Promise<string | null> {
+  try {
+    const serverRes = await fetch("https://api.gofile.io/getServer");
+    const serverData = await serverRes.json();
+    if (serverData.status !== "ok") return null;
+
+    const formData = new FormData();
+    formData.append("file", {
+      uri: file.uri,
+      type: file.mimeType || "application/octet-stream",
+      name: file.filename || "upload"
+    } as any);
+
+    if (storage.gofileToken) formData.append("token", storage.gofileToken);
+
+    const uploadRes = await fetch(`https://${serverData.data.server}.gofile.io/uploadFile`, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await uploadRes.json();
+    return result.status === "ok" ? result.data.downloadPage : null;
+  } catch {
+    return null;
+  }
+}
 
 export function patchUploader() {
   const CloudUpload = CloudUploadModule?.CloudUpload;
@@ -18,7 +45,7 @@ export function patchUploader() {
     if (!storage.alwaysUpload && size < 10485760) return original.apply(this, args);
 
     showToast("📤 Uploading to GoFile...");
-    this.preCompressionSize = 1337; // Spoof size to bypass native limits
+    this.preCompressionSize = 1337; 
 
     try {
       const link = await uploadToGoFile(this);
@@ -26,15 +53,29 @@ export function patchUploader() {
 
       if (link) {
         if (storage.copy) ReactNative.Clipboard.setString(link);
-        showToast("Link ready!");
+        showToast("Done!");
         if (MessageSender && this.channelId) {
-            await MessageSender.sendMessage(this.channelId, { content: link });
+          await MessageSender.sendMessage(this.channelId, { content: link });
         }
+      } else {
+        showToast("Gofile Error");
       }
     } catch {
-      showToast("Upload failed");
+      showToast("System Error");
     }
     return null;
   };
   return () => { CloudUpload.prototype.reactNativeCompressAndExtractData = original; };
+}
+
+export function patchMessageSender() {
+  if (!MessageSender) return;
+  return before("sendMessage", MessageSender, (args) => args);
+}
+
+export function ensureDefaultSettings() {
+  storage.alwaysUpload ??= false;
+  storage.copy ??= true;
+  storage.insert ??= false;
+  storage.gofileToken ??= "";
 }
