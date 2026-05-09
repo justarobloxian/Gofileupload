@@ -1,7 +1,7 @@
 {
   "name": "gofile-upload",
   "version": "1.0.0",
-  "main": "src/index.tsx",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "build": "rollup -c"
