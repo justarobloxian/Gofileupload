@@ -4,7 +4,7 @@ import { showToast } from "@vendetta/ui/toasts";
 import { storage } from "@vendetta/plugin";
 import { findByProps } from "@vendetta/metro";
 
-const CloudUpload = findByProps("CloudUpload")?.CloudUpload;
+const CloudUploadModule = findByProps("CloudUpload");
 const MessageSender = findByProps("sendMessage");
 const ChannelStore = findByProps("getChannelId");
 const PendingMessages = findByProps("getPendingMessages", "deletePendingMessage");
@@ -36,10 +36,9 @@ export async function uploadToGoFile(file: any): Promise<string | null> {
 }
 
 export function ensureDefaultSettings() {
-  if (typeof storage.alwaysUpload !== "boolean") storage.alwaysUpload = false;
-  if (typeof storage.copy !== "boolean") storage.copy = true;
-  if (typeof storage.insert !== "boolean") storage.insert = false;
-  if (storage.selectedHost !== "gofile") storage.selectedHost = "gofile";
+  storage.alwaysUpload ??= false;
+  storage.copy ??= true;
+  storage.insert ??= false;
 }
 
 function cleanup(channelId: string) {
@@ -54,7 +53,8 @@ function cleanup(channelId: string) {
 
 let storeLink: string | null = null;
 
-export function patchMessageSender(): () => void {
+export function patchMessageSender() {
+  if (!MessageSender) return;
   return before("sendMessage", MessageSender, (args) => {
     const message = args[1];
     if (storage.insert && storeLink && message?.content) {
@@ -65,14 +65,17 @@ export function patchMessageSender(): () => void {
   });
 }
 
-export function patchUploader(): () => void {
+export function patchUploader() {
+  const CloudUpload = CloudUploadModule?.CloudUpload;
+  if (!CloudUpload?.prototype) return;
+
   const originalUpload = CloudUpload.prototype.reactNativeCompressAndExtractData;
 
   CloudUpload.prototype.reactNativeCompressAndExtractData = async function (...args: any[]) {
     const file = this;
     const size = file?.preCompressionSize ?? 0;
-    
     const shouldUpload = !!storage.alwaysUpload || size > 10 * 1024 * 1024;
+    
     if (!shouldUpload) return originalUpload.apply(this, args);
 
     this.preCompressionSize = 1337; 
@@ -82,7 +85,6 @@ export function patchUploader(): () => void {
 
     try {
       const link = await uploadToGoFile(file);
-
       if (typeof this.setStatus === "function") this.setStatus("CANCELED");
       if (channelId) setTimeout(() => cleanup(channelId), 500);
 
@@ -111,3 +113,4 @@ export function patchUploader(): () => void {
 
   return () => { CloudUpload.prototype.reactNativeCompressAndExtractData = originalUpload; };
 }
+  
