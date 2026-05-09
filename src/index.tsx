@@ -1,12 +1,7 @@
 import { warmUpUploader } from "./lib/warmup";
 import settings from "./pages/settings";
 import { loadCommand, unloadCommand } from "./pages/command";
-
-import {
-  ensureDefaultSettings,
-  patchUploader,
-  patchMessageSender,
-} from "./handler";
+import { ensureDefaultSettings, patchUploader, patchMessageSender } from "./handler";
 
 let unpatches: any[] = [];
 
@@ -15,27 +10,18 @@ export default {
     try {
       ensureDefaultSettings();
       loadCommand();
-
       const uploaderPatch = patchUploader();
       if (uploaderPatch) unpatches.push(uploaderPatch);
-
       const senderPatch = patchMessageSender();
       if (senderPatch) unpatches.push(senderPatch);
-
       warmUpUploader();
-      console.log("[Gofile] Plugin loaded successfully.");
-    } catch (e) {
-      console.error("[Gofile] Failed to load:", e);
-    }
+    } catch (e) {}
   },
-
   onUnload() {
     unloadCommand();
     for (const unpatch of unpatches) {
       if (typeof unpatch === "function") unpatch();
     }
-    console.log("[Gofile] Plugin unloaded.");
   },
-
   settings,
 };
