@@ -9,3 +9,8 @@ export function getCloseDuration(): string | null {
   nextDuration = null;
   return temp;
 }
+
+export default {
+  setCloseDuration,
+  getCloseDuration,
+};
