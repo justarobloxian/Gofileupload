@@ -2,10 +2,13 @@
   "name": "gofile-upload",
   "version": "1.0.0",
   "main": "src/index.tsx",
+  "type": "module",
   "scripts": {
-    "build": "npx @vendetta/cli build src dist"
+    "build": "rollup -c"
   },
   "devDependencies": {
-    "@vendetta/cli": "latest"
+    "rollup": "^4.0.0",
+    "esbuild": "latest",
+    "rollup-plugin-esbuild": "latest"
   }
 }
