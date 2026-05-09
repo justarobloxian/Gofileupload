@@ -2,26 +2,32 @@ name: Build and Deploy
 on:
   push:
     branches: [ "main" ]
+
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build
+          
+      - name: Install and Build
         run: |
           npm install
           npm run build
           cp src/manifest.json dist/manifest.json
-      - name: Commit Dist
+          
+      - name: Commit Dist Folder
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add dist/ -f
-          git commit -m "Update build" || exit 0
+          git commit -m "chore: update build files" || exit 0
           git push
-          
