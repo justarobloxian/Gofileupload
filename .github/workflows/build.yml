@@ -13,13 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build
+
+      - name: Build Plugin
         run: |
           npm install
           npm run build
+          # This line below is the "Secret Sauce" to fix the 404
+          cp src/manifest.json dist/manifest.json
+
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
