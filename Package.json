@@ -1,0 +1,11 @@
+{
+  "name": "BigFileUpload-GoFile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "build": "vendetta-cli build"
+  },
+  "devDependencies": {
+    "vendetta-types": "latest"
+  }
+}
