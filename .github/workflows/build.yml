@@ -2,22 +2,26 @@ name: Build Plugin
 on:
   push:
     branches: [ "main" ]
-    
-    permissions:
+
+permissions:
   contents: write
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - name: Install Dependencies
         run: npm install
+
       - name: Build Plugin
-        run: npm run build
+        run: npx vendetta-cli build src dist
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
