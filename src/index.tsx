@@ -1,27 +1,19 @@
-import { warmUpUploader } from "./lib/warmup";
+import { storage } from "@vendetta/plugin";
 import settings from "./pages/settings";
-import { loadCommand, unloadCommand } from "./pages/command";
 import { ensureDefaultSettings, patchUploader, patchMessageSender } from "./handler";
 
 let unpatches: any[] = [];
 
 export default {
   onLoad() {
-    try {
-      ensureDefaultSettings();
-      loadCommand();
-      const uploaderPatch = patchUploader();
-      if (uploaderPatch) unpatches.push(uploaderPatch);
-      const senderPatch = patchMessageSender();
-      if (senderPatch) unpatches.push(senderPatch);
-      warmUpUploader();
-    } catch (e) {}
+    ensureDefaultSettings();
+    const u1 = patchUploader();
+    const u2 = patchMessageSender();
+    if (u1) unpatches.push(u1);
+    if (u2) unpatches.push(u2);
   },
   onUnload() {
-    unloadCommand();
-    for (const unpatch of unpatches) {
-      if (typeof unpatch === "function") unpatch();
-    }
+    for (const unpatch of unpatches) unpatch?.();
   },
-  settings,
+  settings
 };
