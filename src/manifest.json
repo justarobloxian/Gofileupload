@@ -1,13 +1,8 @@
 {
-  "name": "BigFileUpload-GoFile",
-  "description": "Uploads files larger than 10MB to GoFile automatically.",
-  "authors": [
-    {
-      "name": "bbhhhhjj",
-      "id": "1501465747472519238"
-    }
-  ],
+  "name": "GoFile-Uploader",
+  "description": "Uploads large files to GoFile.",
+  "authors": [{ "name": "bbhhhhjj", "id": "1501465747472519238" }],
   "main": "index.js",
-  "id": "com.justarobloxian.gofile",
+  "id": "com.bbhhhhjj.gofile.final",
   "hash": "auto-generated"
 }
