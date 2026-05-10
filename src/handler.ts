@@ -21,8 +21,6 @@ async function uploadToGoFile(file: any): Promise<string | null> {
       name: file.filename || "upload.bin"
     } as any);
 
-    if (storage.gofileToken) formData.append("token", storage.gofileToken);
-
     const uploadRes = await fetch(`https://${serverData.data.server}.gofile.io/uploadFile`, {
       method: "POST",
       body: formData
@@ -31,6 +29,7 @@ async function uploadToGoFile(file: any): Promise<string | null> {
     const result = await uploadRes.json();
     return result.status === "ok" ? result.data.downloadPage : null;
   } catch (err) {
+    console.error(err);
     return null;
   }
 }
@@ -61,12 +60,12 @@ export function patchUploader() {
         if (channelId && !storage.insert) {
           await MessageSender.sendMessage(channelId, { content: link });
         }
-        showToast("✅ Done!");
+        showToast("✅ GoFile Upload Complete");
       } else {
-        showToast("❌ Upload failed");
+        showToast("❌ GoFile Upload Failed");
       }
     } catch {
-      showToast("❌ Error");
+      showToast("❌ System Error");
     }
     return null;
   };
@@ -83,5 +82,4 @@ export function ensureDefaultSettings() {
   storage.alwaysUpload ??= false;
   storage.copy ??= true;
   storage.insert ??= false;
-  storage.gofileToken ??= "";
-        }
+}
