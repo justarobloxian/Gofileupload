@@ -1,5 +1,4 @@
-import { storage } from "@vendetta/plugin";
-import settings from "./pages/settings";
+import settings from "./settings";
 import { ensureDefaultSettings, patchUploader, patchMessageSender } from "./handler";
 
 let unpatches: any[] = [];
