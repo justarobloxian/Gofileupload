@@ -6,8 +6,8 @@ import { findByProps } from "@vendetta/metro";
 
 const CloudUploadModule = findByProps("CloudUpload");
 const MessageSender = findByProps("sendMessage");
+const ChannelStore = findByProps("getChannelId");
 
-// API Logic moved inside to prevent "Red X" import errors
 async function uploadToGoFile(file: any): Promise<string | null> {
   try {
     const serverRes = await fetch("https://api.gofile.io/getServer");
@@ -18,7 +18,7 @@ async function uploadToGoFile(file: any): Promise<string | null> {
     formData.append("file", {
       uri: file.uri,
       type: file.mimeType || "application/octet-stream",
-      name: file.filename || "upload"
+      name: file.filename || "upload.bin"
     } as any);
 
     if (storage.gofileToken) formData.append("token", storage.gofileToken);
@@ -30,7 +30,7 @@ async function uploadToGoFile(file: any): Promise<string | null> {
 
     const result = await uploadRes.json();
     return result.status === "ok" ? result.data.downloadPage : null;
-  } catch {
+  } catch (err) {
     return null;
   }
 }
@@ -40,12 +40,15 @@ export function patchUploader() {
   if (!CloudUpload?.prototype) return () => {};
 
   const original = CloudUpload.prototype.reactNativeCompressAndExtractData;
+
   CloudUpload.prototype.reactNativeCompressAndExtractData = async function (...args: any[]) {
     const size = this.preCompressionSize ?? 0;
-    if (!storage.alwaysUpload && size < 10485760) return original.apply(this, args);
+    const shouldUpload = !!storage.alwaysUpload || size > 10 * 1024 * 1024;
 
-    showToast("📤 Uploading to GoFile...");
+    if (!shouldUpload) return original.apply(this, args);
+
     this.preCompressionSize = 1337; 
+    showToast("📤 Uploading to GoFile...");
 
     try {
       const link = await uploadToGoFile(this);
@@ -53,18 +56,21 @@ export function patchUploader() {
 
       if (link) {
         if (storage.copy) ReactNative.Clipboard.setString(link);
-        showToast("Done!");
-        if (MessageSender && this.channelId) {
-          await MessageSender.sendMessage(this.channelId, { content: link });
+        
+        const channelId = this.channelId ?? ChannelStore?.getChannelId?.();
+        if (channelId && !storage.insert) {
+          await MessageSender.sendMessage(channelId, { content: link });
         }
+        showToast("✅ Done!");
       } else {
-        showToast("Gofile Error");
+        showToast("❌ Upload failed");
       }
     } catch {
-      showToast("System Error");
+      showToast("❌ Error");
     }
     return null;
   };
+
   return () => { CloudUpload.prototype.reactNativeCompressAndExtractData = original; };
 }
 
@@ -78,4 +84,4 @@ export function ensureDefaultSettings() {
   storage.copy ??= true;
   storage.insert ??= false;
   storage.gofileToken ??= "";
-}
+        }
