@@ -1,14 +1,13 @@
 {
-  "name": "gofile-upload",
+  "name": "gofile-uploader",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "rollup -c"
   },
   "devDependencies": {
+    "esbuild": "^0.19.0",
     "rollup": "^4.0.0",
-    "esbuild": "latest",
-    "rollup-plugin-esbuild": "latest"
+    "rollup-plugin-esbuild": "^6.0.0"
   }
 }
