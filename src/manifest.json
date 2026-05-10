@@ -1,8 +1,8 @@
 {
-  "name": "GoFile-Uploader",
-  "description": "Uploads large files to GoFile.",
-  "authors": [{ "name": "bbhhhhjj", "id": "1501465747472519238" }],
+  "name": "GoFile Uploader",
+  "description": "Uploads large files directly to GoFile.",
+  "authors": [{"name": "bbhhhhjj", "id": "1501465747472519238"}],
   "main": "index.js",
-  "id": "com.bbhhhhjj.gofile.final",
+  "id": "com.gofile.uploader.v1",
   "hash": "auto-generated"
 }
